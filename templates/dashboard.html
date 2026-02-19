@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="cards">
+    <div class="card">
+        <h3>Total Products</h3>
+        <p>{{ total_products }}</p>
+    </div>
+    <div class="card">
+        <h3>New Arrivals</h3>
+        <p>{{ new_arrivals }}</p>
+    </div>
+</section>
+
+<section class="panel">
+    <h2>Recent Added Items</h2>
+    {% if recent_items %}
+        <div class="recent-list">
+            {% for item in recent_items %}
+                <div class="recent-item">
+                    <img src="{{ url_for('uploaded_file', filename=item['image_filename']) }}" alt="{{ item['name'] }}">
+                    <div>
+                        <strong>{{ item["name"] }}</strong>
+                        <p>{{ item["category"] }} | Rs. {{ "%.2f"|format(item["price"]) }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No products added yet.</p>
+    {% endif %}
+</section>
+{% endblock %}

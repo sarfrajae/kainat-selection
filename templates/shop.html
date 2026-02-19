@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kainat Selection Shop</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body class="shop-body">
+    <header class="shop-header">
+        <h1>Kainat Selection</h1>
+        <p>Shop Our Latest Boutique Collection</p>
+    </header>
+
+    <main class="shop-container">
+        {% if products %}
+            <section class="shop-grid">
+                {% for product in products %}
+                    <article class="shop-card">
+                        <div class="shop-image-wrap">
+                            <img src="{{ url_for('uploaded_file', filename=product['image_filename']) }}" alt="{{ product['name'] }}">
+                            {% if product["is_new_arrival"] == 1 %}
+                                <span class="badge shop-badge">New Arrival</span>
+                            {% endif %}
+                        </div>
+                        <div class="shop-card-content">
+                            <h2>{{ product["name"] }}</h2>
+                            <p class="shop-price">Rs. {{ "%.2f"|format(product["price"]) }}</p>
+                            <a class="whatsapp-btn" href="{{ product['whatsapp_link'] }}" target="_blank" rel="noopener">
+                                Order on WhatsApp
+                            </a>
+                        </div>
+                    </article>
+                {% endfor %}
+            </section>
+        {% else %}
+            <section class="shop-empty">
+                <p>No products available right now.</p>
+            </section>
+        {% endif %}
+    </main>
+</body>
+</html>

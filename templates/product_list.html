@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="panel">
+    <h2>Product List</h2>
+    {% if products %}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                        <tr>
+                            <td>
+                                <img class="thumb" src="{{ url_for('uploaded_file', filename=product['image_filename']) }}" alt="{{ product['name'] }}">
+                            </td>
+                            <td>{{ product["name"] }}</td>
+                            <td>{{ product["category"] }}</td>
+                            <td>Rs. {{ "%.2f"|format(product["price"]) }}</td>
+                            <td>
+                                {% if product["is_new_arrival"] == 1 %}
+                                    <span class="badge">New Arrival</span>
+                                {% else %}
+                                    <span>-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <form method="post" action="{{ url_for('delete_product', product_id=product['id']) }}">
+                                    <button class="delete-btn" type="submit">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p>No products found.</p>
+    {% endif %}
+</section>
+{% endblock %}
