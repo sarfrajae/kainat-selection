@@ -13,7 +13,7 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 
 # Render postgres fix
 if DATABASE_URL.startswith("postgres://"):
-    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+psycopg://", 1)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -124,7 +124,7 @@ def shop():
         message = f"Hello Kainat Selection, I want to order {p.name}"
         shop_products.append({
             **p.__dict__,
-            "whatsapp_link": f"https://wa.me/919898617889?text={quote(message)}"
+            "whatsapp_link": f"https://wa.me/919265832592?text={quote(message)}"
         })
 
     return render_template("shop.html", products=shop_products)
