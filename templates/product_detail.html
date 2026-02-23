@@ -1,167 +1,62 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ product.name }} | Kainat Selection</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>{{ product.name }} - Kainat Selection</title>
 </head>
-<body class="shop-body">
-    <header class="shop-header detail-header">
-        <h1>Kainat Selection</h1>
-        <p>Product Details</p>
-    </header>
+<body>
 
-    <main class="shop-container">
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <div class="flash-list">
-                    {% for message in messages %}
-                        <div class="flash-message">{{ message }}</div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        {% endwith %}
+<h1>{{ product.name }}</h1>
+<p>Category: {{ product.category }}</p>
 
-        <section class="product-detail-card">
-            <div class="gallery-column">
-                <div class="main-image-wrap" id="main-image-wrap">
-                    {% if product.images %}
-                        {% for image in product.images %}
-                            <img
-                                src="{{ url_for('uploaded_file', filename=image.filename) }}"
-                                alt="{{ product.name }} image {{ loop.index }}"
-                                class="gallery-image {% if loop.first %}active{% endif %}"
-                                data-index="{{ loop.index0 }}"
-                            >
-                        {% endfor %}
-                    {% elif product.primary_image_filename %}
-                        <img src="{{ url_for('uploaded_file', filename=product.primary_image_filename) }}" alt="{{ product.name }}" class="gallery-image active" data-index="0">
-                    {% endif %}
-                </div>
+{% if product.discount_percentage > 0 %}
+    <p>
+        <del>Rs. {{ "%.2f"|format(product.effective_original_price) }}</del>
+        <strong>Rs. {{ "%.2f"|format(product.effective_selling_price) }}</strong>
+        <span>{{ product.discount_percentage }}% OFF</span>
+    </p>
+{% else %}
+    <p>Rs. {{ "%.2f"|format(product.effective_selling_price) }}</p>
+{% endif %}
 
-                <div class="thumb-row" id="thumb-row">
-                    {% if product.images %}
-                        {% for image in product.images %}
-                            <button type="button" class="thumb-btn {% if loop.first %}active{% endif %}" data-index="{{ loop.index0 }}">
-                                <img src="{{ url_for('uploaded_file', filename=image.filename) }}" alt="Thumb {{ loop.index }}">
-                            </button>
-                        {% endfor %}
-                    {% elif product.primary_image_filename %}
-                        <button type="button" class="thumb-btn active" data-index="0">
-                            <img src="{{ url_for('uploaded_file', filename=product.primary_image_filename) }}" alt="Thumb">
-                        </button>
-                    {% endif %}
-                </div>
-            </div>
+<hr>
 
-            <div class="info-column">
-                <h2>{{ product.name }}</h2>
-                <p class="category-line">Category: {{ product.category }}</p>
+<form method="POST" action="{{ url_for('place_order', product_id=product.id) }}">
 
-                <p class="shop-price-line">
-                    {% if product.discount_percentage > 0 %}
-                        <span class="old-price">Rs. {{ "%.2f"|format(product.effective_original_price) }}</span>
-                    {% endif %}
-                    <span class="shop-price">Rs. {{ "%.2f"|format(product.effective_selling_price) }}</span>
-                    {% if product.discount_percentage > 0 %}
-                        <span class="badge">{{ product.discount_percentage }}% OFF</span>
-                    {% endif %}
-                </p>
+    <h3>Select Size</h3>
 
-                <form method="post" action="{{ url_for('place_order', product_id=product.id) }}" class="order-form">
-                    <fieldset class="size-fieldset">
-                        <legend>Select Size</legend>
-                        {% for size in product.sizes %}
-                            <label class="size-option {% if size.stock == 0 %}disabled{% endif %}">
-                                <input
-                                    type="radio"
-                                    name="size_id"
-                                    value="{{ size.id }}"
-                                    {% if size.stock == 0 %}disabled{% endif %}
-                                    {% if loop.first and size.stock > 0 %}checked{% endif %}
-                                >
-                                <span>{{ size.label }}</span>
-                                <small>{% if size.stock > 0 %}{{ size.stock }} left{% else %}Out of stock{% endif %}</small>
-                            </label>
-                        {% endfor %}
-                    </fieldset>
+    {% for size in product.sizes %}
+        <div>
+            <label>
+                <input type="radio"
+                       name="size_id"
+                       value="{{ size.id }}"
+                       {% if loop.first %}checked{% endif %}
+                       {% if size.stock <= 0 %}disabled{% endif %}>
 
-                    <label class="qty-row">
-                        Quantity
-                        <input type="number" name="quantity" min="1" step="1" value="1" required>
-                    </label>
+                {{ size.label }}
 
-                    <button class="whatsapp-btn" type="submit">Order on WhatsApp</button>
-                </form>
+                {% if size.stock > 0 %}
+                    ({{ size.stock }} left)
+                {% else %}
+                    (Out of stock)
+                {% endif %}
+            </label>
+        </div>
+    {% endfor %}
 
-                <a href="{{ url_for('shop') }}" class="back-link">Back to Shop</a>
-            </div>
-        </section>
-    </main>
+    <br>
 
-<script>
-    (function () {
-        const images = Array.from(document.querySelectorAll('.gallery-image'));
-        const thumbs = Array.from(document.querySelectorAll('.thumb-btn'));
-        const wrap = document.getElementById('main-image-wrap');
+    <label>Quantity:</label>
+    <input type="number" name="quantity" value="1" min="1">
 
-        if (!images.length || !thumbs.length) {
-            return;
-        }
+    <br><br>
 
-        let current = 0;
-        let startX = null;
+    <button type="submit">Order on WhatsApp</button>
 
-        function show(index) {
-            if (index < 0) {
-                index = images.length - 1;
-            }
-            if (index >= images.length) {
-                index = 0;
-            }
+</form>
 
-            current = index;
+<br>
+<a href="{{ url_for('shop') }}">Back to Shop</a>
 
-            images.forEach((img, i) => {
-                img.classList.toggle('active', i === index);
-            });
-
-            thumbs.forEach((btn, i) => {
-                btn.classList.toggle('active', i === index);
-            });
-        }
-
-        thumbs.forEach((thumb) => {
-            thumb.addEventListener('click', function () {
-                const idx = Number(this.dataset.index || 0);
-                show(idx);
-            });
-        });
-
-        wrap.addEventListener('touchstart', function (event) {
-            if (!event.touches.length) return;
-            startX = event.touches[0].clientX;
-        }, { passive: true });
-
-        wrap.addEventListener('touchend', function (event) {
-            if (startX === null || !event.changedTouches.length) return;
-
-            const endX = event.changedTouches[0].clientX;
-            const distance = endX - startX;
-            const threshold = 40;
-
-            if (Math.abs(distance) > threshold) {
-                if (distance < 0) {
-                    show(current + 1);
-                } else {
-                    show(current - 1);
-                }
-            }
-
-            startX = null;
-        }, { passive: true });
-    })();
-</script>
 </body>
 </html>
