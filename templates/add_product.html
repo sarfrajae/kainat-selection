@@ -4,8 +4,9 @@
 <section class="panel">
     <h2>Add Product</h2>
     <form class="product-form" method="post" enctype="multipart/form-data">
-        <label>Upload Product Image</label>
-        <input type="file" name="image" accept="image/*" required>
+        <label>Upload Product Images</label>
+        <input type="file" name="images" accept="image/*" multiple required>
+        <p class="hint-text">You can upload multiple images.</p>
 
         <label>Product Name</label>
         <input type="text" name="name" placeholder="Enter product name" required>
@@ -18,16 +19,30 @@
             {% endfor %}
         </select>
 
-        <label>Size</label>
-        <select name="size" required>
-            <option value="">Select size</option>
-            {% for size in sizes %}
-                <option value="{{ size }}">{{ size }}</option>
-            {% endfor %}
-        </select>
+        <div class="price-grid">
+            <div>
+                <label>Original Price</label>
+                <input type="number" step="0.01" min="0.01" name="original_price" placeholder="Enter original price" required>
+            </div>
+            <div>
+                <label>Selling Price</label>
+                <input type="number" step="0.01" min="0.01" name="selling_price" placeholder="Enter selling price" required>
+            </div>
+        </div>
 
-        <label>Price</label>
-        <input type="number" step="0.01" min="0" name="price" placeholder="Enter price" required>
+        <div class="sizes-block">
+            <div class="sizes-head">
+                <label>Sizes and Stock</label>
+                <button type="button" id="add-size-row" class="secondary-btn">Add Size</button>
+            </div>
+            <div id="size-rows">
+                <div class="size-row">
+                    <input type="text" name="size_label[]" placeholder="Size (e.g., S, M, L, XL, Free)" required>
+                    <input type="number" name="size_stock[]" min="0" step="1" placeholder="Stock" required>
+                    <button type="button" class="remove-size-row secondary-btn">Remove</button>
+                </div>
+            </div>
+        </div>
 
         <label class="checkbox-line">
             <input type="checkbox" name="is_new_arrival">
@@ -37,4 +52,36 @@
         <button type="submit">Save</button>
     </form>
 </section>
+
+<script>
+    (function () {
+        const rows = document.getElementById("size-rows");
+        const addBtn = document.getElementById("add-size-row");
+
+        function attachRemoveHandler(button) {
+            button.addEventListener("click", function () {
+                const allRows = rows.querySelectorAll(".size-row");
+                if (allRows.length <= 1) {
+                    return;
+                }
+                button.closest(".size-row").remove();
+            });
+        }
+
+        addBtn.addEventListener("click", function () {
+            const row = document.createElement("div");
+            row.className = "size-row";
+            row.innerHTML = [
+                '<input type="text" name="size_label[]" placeholder="Size (e.g., S, M, L, XL, Free)" required>',
+                '<input type="number" name="size_stock[]" min="0" step="1" placeholder="Stock" required>',
+                '<button type="button" class="remove-size-row secondary-btn">Remove</button>'
+            ].join("");
+
+            rows.appendChild(row);
+            attachRemoveHandler(row.querySelector(".remove-size-row"));
+        });
+
+        rows.querySelectorAll(".remove-size-row").forEach(attachRemoveHandler);
+    })();
+</script>
 {% endblock %}
