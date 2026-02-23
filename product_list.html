@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="panel">
+    <h2>Product List</h2>
+    {% if products %}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Pricing</th>
+                        <th>Stock</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                        <tr>
+                            <td>
+                                {% if product.primary_image_filename %}
+                                    <img class="thumb" src="{{ url_for('uploaded_file', filename=product.primary_image_filename) }}" alt="{{ product.name }}">
+                                {% endif %}
+                            </td>
+                            <td>{{ product.name }}</td>
+                            <td>{{ product.category }}</td>
+                            <td>
+                                <div class="price-stack">
+                                    {% if product.discount_percentage > 0 %}
+                                        <span class="old-price">Rs. {{ "%.2f"|format(product.effective_original_price) }}</span>
+                                    {% endif %}
+                                    <span>Rs. {{ "%.2f"|format(product.effective_selling_price) }}</span>
+                                    {% if product.discount_percentage > 0 %}
+                                        <span class="badge">{{ product.discount_percentage }}% OFF</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>{{ product.total_stock }}</td>
+                            <td>
+                                {% if product.is_new_arrival %}
+                                    <span class="badge">New Arrival</span>
+                                {% else %}
+                                    <span>-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <form method="post" action="{{ url_for('delete_product', product_id=product.id) }}">
+                                    <button class="delete-btn" type="submit">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p>No products found.</p>
+    {% endif %}
+</section>
+{% endblock %}
